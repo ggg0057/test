@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#16211d">
+  <title>幻想乡聊天室 · 词典助手</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="scene-backdrop" aria-hidden="true"></div>
+  <div class="scene-wash" aria-hidden="true"></div>
+  <canvas id="fireworksCanvas" class="fireworks-canvas" aria-hidden="true"></canvas>
+
+  <main class="app-shell" aria-label="幻想乡聊天室">
+    <aside class="rail">
+      <div class="brand-rune" aria-label="幻想乡">幻</div>
+      <nav class="rail-nav" aria-label="主导航">
+        <button class="rail-button active" type="button" data-view="chat" aria-label="聊天室">
+          <span class="rail-icon">聊</span><small>聊天</small>
+        </button>
+        <button class="rail-button" type="button" data-view="dictionary" aria-label="查词">
+          <span class="rail-icon">译</span><small>查词</small>
+        </button>
+        <button class="rail-button" type="button" data-view="history" aria-label="记录查询">
+          <span class="rail-icon">录</span><small>记录</small>
+        </button>
+        <button class="rail-button" type="button" data-view="music" aria-label="在线音乐">
+          <span class="rail-icon">音</span><small>音乐</small>
+        </button>
+        <button class="rail-button" type="button" data-view="game" aria-label="单词雨游戏">
+          <span class="rail-icon">游</span><small>游戏</small>
+        </button>
+      </nav>
+      <div class="rail-spacer"></div>
+      <button id="themeButton" class="rail-button theme-trigger" type="button" aria-label="更换场景">
+        <span class="rail-icon">景</span><small>场景</small>
+      </button>
+    </aside>
+
+    <aside class="sidebar">
+      <header class="brand-block">
+        <p class="eyebrow">GENSOKYO LINK</p>
+        <h1>幻想乡聊天室</h1>
+        <p>在风景与词语之间，慢慢聊。</p>
+      </header>
+
+      <section class="profile-card">
+        <span id="profileAvatar" class="avatar">?</span>
+        <span class="profile-copy">
+          <strong id="profileName">尚未登录</strong>
+          <small><i></i> C++ 本地服务</small>
+        </span>
+        <button id="leaveButton" type="button" title="退出聊天室">退出</button>
+      </section>
+
+      <nav class="space-nav" aria-label="空间导航">
+        <button class="space-card active" type="button" data-view="chat">
+          <span class="space-mark">#</span>
+          <span><strong>公共大厅</strong><small>多人实时聊天</small></span>
+          <b id="roomCount">1</b>
+        </button>
+        <button class="space-card" type="button" data-view="dictionary">
+          <span class="space-mark">译</span>
+          <span><strong>独立查词</strong><small>7,975 个词条</small></span>
+          <b>→</b>
+        </button>
+        <button class="space-card" type="button" data-view="history">
+          <span class="space-mark">录</span>
+          <span><strong>记录查询</strong><small>聊天与查词历史</small></span>
+          <b>⌕</b>
+        </button>
+        <button class="space-card" type="button" data-view="music">
+          <span class="space-mark">音</span>
+          <span><strong>在线音乐</strong><small>选择并播放曲库</small></span>
+          <b>♪</b>
+        </button>
+        <button class="space-card" type="button" data-view="game">
+          <span class="space-mark">游</span>
+          <span><strong>单词雨挑战</strong><small>在线排行小游戏</small></span>
+          <b>★</b>
+        </button>
+      </nav>
+
+      <section class="scene-card">
+        <p class="eyebrow">CURRENT SCENE</p>
+        <h2>今天也在幻想乡</h2>
+        <p>使用你提供的图片作为界面场景，可以随时切换。</p>
+        <button id="sceneShortcut" type="button">选择场景 <span>↗</span></button>
+      </section>
+
+      <footer class="server-card">
+        <span class="pulse"></span>
+        <span><strong>C++ 服务在线</strong><small id="serverDetail">正在连接本地服务</small></span>
+      </footer>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div>
+          <p id="viewEyebrow" class="eyebrow">PUBLIC LOUNGE</p>
+          <h2 id="viewTitle">公共大厅</h2>
+          <small id="viewSubtitle">一个安静、友好的共享空间</small>
+        </div>
+        <div class="topbar-actions">
+          <a class="web-link" href="/web" target="_blank" rel="noopener">网页版</a>
+          <button id="quickHistory" type="button">⌕ 搜索记录</button>
+          <button id="membersToggle" type="button">在线成员</button>
+        </div>
+      </header>
+
+      <div id="connectionBanner" class="connection-banner" hidden>连接暂时中断，正在重试……</div>
+
+      <section id="chatView" class="view active" data-view-panel="chat">
+        <div class="chat-layout">
+          <div class="chat-main">
+            <div id="messageList" class="messages" aria-live="polite" aria-label="聊天消息"></div>
+            <div class="composer-wrap">
+              <div class="composer-note"><span>Enter 发送 · Shift + Enter 换行</span><span id="messageCounter">0 / 500</span></div>
+              <form id="messageForm" class="composer">
+                <button id="commandButton" class="command-button" type="button" title="插入查词命令">译</button>
+                <textarea id="messageInput" rows="1" maxlength="500" placeholder="发消息到 #公共大厅" aria-label="消息内容"></textarea>
+                <button class="send-button" type="submit"><span>发送</span><b>↗</b></button>
+              </form>
+            </div>
+          </div>
+
+          <aside id="membersPanel" class="members-panel">
+            <section class="channel-panel">
+              <div class="panel-heading"><p class="eyebrow">CHAT ROOMS</p><button id="addRoomButton" type="button" title="创建聊天室">＋</button></div>
+              <div id="roomList" class="channel-list"></div>
+            </section>
+            <section class="direct-panel">
+              <div class="panel-heading"><p class="eyebrow">DIRECT MESSAGES</p><small>私聊</small></div>
+              <div id="contactList" class="channel-list contact-list"></div>
+            </section>
+            <header>
+              <p class="eyebrow">ONLINE NOW</p>
+              <h3>在线成员 <span id="memberCount">1</span></h3>
+            </header>
+            <div id="memberList" class="member-list"></div>
+            <section class="bot-tip">
+              <span>✦</span>
+              <p class="eyebrow">DICTIONARY BOT</p>
+              <h4>聊天时也能查词</h4>
+              <code>@词典 network</code>
+              <button id="botShortcut" type="button">立即试试</button>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="dictionaryView" class="view" data-view-panel="dictionary" hidden>
+        <div class="dictionary-page">
+          <section class="dictionary-hero">
+            <p class="eyebrow">PERSONAL DICTIONARY</p>
+            <h3>让一个词，慢慢展开。</h3>
+            <p>独立查询不会打断聊天室消息，同时自动保存到你的查词记录。</p>
+            <form id="dictionaryForm" class="dictionary-search">
+              <span>⌕</span>
+              <input id="dictionaryInput" maxlength="80" autocomplete="off" placeholder="输入英文单词或中文释义" aria-label="查词内容">
+              <button type="submit">查询</button>
+            </form>
+            <div class="suggestion-row">
+              <span>试试：</span>
+              <button type="button" data-word="ability">ability</button>
+              <button type="button" data-word="network">network</button>
+              <button type="button" data-word="friend">friend</button>
+              <button type="button" data-word="聊天">聊天</button>
+            </div>
+          </section>
+
+          <div class="dictionary-grid">
+            <section id="dictionaryResult" class="result-card empty">
+              <div class="result-orbit">译</div>
+              <p class="eyebrow">LOOKUP RESULT</p>
+              <h3 id="resultWord">等待查询</h3>
+              <p id="resultMeaning">输入一个词，结果会显示在这里。</p>
+              <small id="resultTime"></small>
+            </section>
+            <section class="recent-card">
+              <div class="section-heading">
+                <div><p class="eyebrow">RECENT LOOKUPS</p><h3>最近查词</h3></div>
+                <button type="button" data-view="history">查看全部</button>
+              </div>
+              <div id="recentLookupList" class="recent-list"></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section id="historyView" class="view" data-view-panel="history" hidden>
+        <div class="history-page">
+          <section class="history-toolbar">
+            <div class="history-tabs" role="tablist">
+              <button class="active" type="button" data-history-type="chat">聊天记录</button>
+              <button type="button" data-history-type="dictionary">查词记录</button>
+            </div>
+            <form id="historyForm" class="history-search">
+              <span>⌕</span>
+              <input id="historyInput" autocomplete="off" placeholder="搜索昵称或消息内容" aria-label="记录关键词">
+              <button type="submit">搜索</button>
+            </form>
+          </section>
+          <div class="history-summary">
+            <span id="historyCount">0 条记录</span>
+            <button id="clearHistorySearch" type="button">清除筛选</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </section>
+
+      <section id="musicView" class="view" data-view-panel="music" hidden>
+        <div class="music-page">
+          <section class="player-card">
+            <div class="record-disc" aria-hidden="true"><span>♪</span></div>
+            <div class="player-copy">
+              <p class="eyebrow">NOW PLAYING</p>
+              <h3 id="currentTrackName">还没有选择音乐</h3>
+              <p id="playerStatus">从曲库中选择一首音乐开始播放。</p>
+              <div class="player-progress">
+                <span id="currentTime">0:00</span>
+                <input id="musicProgress" type="range" min="0" max="100" value="0" aria-label="播放进度">
+                <span id="durationTime">0:00</span>
+              </div>
+              <div class="player-actions">
+                <button id="playPauseButton" class="primary-player-button" type="button" disabled>▶ 开始</button>
+                <label>音量 <input id="volumeControl" type="range" min="0" max="1" step="0.05" value="0.8" aria-label="音量"></label>
+              </div>
+              <audio id="audioPlayer" preload="metadata"></audio>
+            </div>
+          </section>
+
+          <div class="music-grid">
+            <section class="library-card">
+              <div class="section-heading">
+                <div><p class="eyebrow">ONLINE LIBRARY</p><h3>在线曲库</h3></div>
+                <button id="refreshMusic" type="button">刷新</button>
+              </div>
+              <div id="musicList" class="music-list"></div>
+            </section>
+
+            <details class="admin-card">
+              <summary><span><small>ADMIN INTERFACE</small><strong>管理员音乐接口</strong></span><b>＋</b></summary>
+              <div class="admin-body">
+                <label for="adminPassword">管理员口令</label>
+                <input id="adminPassword" type="password" autocomplete="current-password" placeholder="输入启动时配置的口令">
+                <label for="musicFile">上传音乐（最大 25 MB）</label>
+                <input id="musicFile" type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp4,audio/aac,.mp3,.wav,.ogg,.m4a,.aac">
+                <button id="uploadMusic" type="button">上传到曲库</button>
+                <p>删除按钮位于每首音乐右侧；上传与删除都需要管理员口令。</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section id="gameView" class="view" data-view-panel="game" hidden>
+        <div class="game-page">
+          <section class="game-stage">
+            <div class="game-sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <header class="game-stats">
+              <span><small>SCORE</small><strong id="gameScore">0</strong></span>
+              <span><small>COMBO</small><strong id="gameCombo">×0</strong></span>
+              <span><small>LIFE</small><strong id="gameLives">♥ ♥ ♥</strong></span>
+              <span><small>TIME</small><strong id="gameTime">60</strong></span>
+            </header>
+            <div class="game-content">
+              <p class="eyebrow">WORD RAIN CHALLENGE</p>
+              <h3 id="gameWord">单词雨挑战</h3>
+              <p id="gameHint">在 60 秒内选择正确释义，连续答对可获得额外分数。</p>
+              <div id="gameAnswers" class="game-answers" hidden></div>
+              <div class="game-controls">
+                <button id="gameStart" type="button">开始游戏</button>
+                <button id="gamePause" type="button" disabled>暂停</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="leaderboard-card">
+            <div class="section-heading">
+              <div><p class="eyebrow">ONLINE LEADERBOARD</p><h3>在线排行榜</h3></div>
+              <button id="refreshScores" type="button">刷新</button>
+            </div>
+            <div id="scoreList" class="score-list"></div>
+          </section>
+        </div>
+      </section>
+    </section>
+
+    <aside id="themeDrawer" class="theme-drawer" aria-hidden="true">
+      <header>
+        <div><p class="eyebrow">SCENE GALLERY</p><h2>选择界面场景</h2></div>
+        <button id="closeThemeDrawer" type="button" aria-label="关闭场景选择">×</button>
+      </header>
+      <section class="appearance-settings" aria-label="界面效果设置">
+        <div class="appearance-heading">
+          <span>界面效果</span><small>设置会自动保存在当前浏览器</small>
+        </div>
+        <label class="setting-row" for="transparencyToggle">
+          <span class="setting-icon">透</span>
+          <span><strong>窗口透明化</strong><small>启用玻璃质感并透出当前场景</small></span>
+          <input id="transparencyToggle" type="checkbox" role="switch">
+          <i class="switch-track" aria-hidden="true"></i>
+        </label>
+        <label class="setting-row" for="fireworksToggle">
+          <span class="setting-icon coral">焰</span>
+          <span><strong>粒子烟花</strong><small>在界面上方播放轻量烟花动画</small></span>
+          <input id="fireworksToggle" type="checkbox" role="switch">
+          <i class="switch-track" aria-hidden="true"></i>
+        </label>
+      </section>
+      <div class="theme-grid">
+        <button type="button" data-scene="01"><img src="/images/scene-01.jpg" alt="山谷黄昏"><span>山谷黄昏</span></button>
+        <button type="button" data-scene="02"><img src="/images/scene-02.jpg" alt="秋日庭院"><span>秋日庭院</span></button>
+        <button type="button" data-scene="03"><img src="/images/scene-03.jpg" alt="雨后神社"><span>雨后神社</span></button>
+        <button type="button" data-scene="04"><img src="/images/scene-04.jpg" alt="红叶池畔"><span>红叶池畔</span></button>
+        <button type="button" data-scene="05"><img src="/images/scene-05.jpg" alt="云海晴空"><span>云海晴空</span></button>
+        <button type="button" data-scene="06"><img src="/images/scene-06.jpg" alt="水田晚霞"><span>水田晚霞</span></button>
+        <button type="button" data-scene="07"><img src="/images/scene-07.jpg" alt="雨天和室"><span>雨天和室</span></button>
+        <button type="button" data-scene="08"><img src="/images/scene-08.jpg" alt="夏日骤雨"><span>夏日骤雨</span></button>
+        <button type="button" data-scene="09"><img src="/images/scene-09.jpg" alt="樱花古树"><span>樱花古树</span></button>
+        <button type="button" data-scene="10"><img src="/images/scene-10.jpg" alt="湖畔同行"><span>湖畔同行</span></button>
+      </div>
+    </aside>
+  </main>
+
+  <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <form id="loginForm" class="login-card">
+      <span class="login-logo">幻</span>
+      <p class="eyebrow">WELCOME TO GENSOKYO</p>
+      <h2 id="loginTitle">进入幻想乡</h2>
+      <p id="authDescription">游客无需注册；注册账户可保存未读消息并创建聊天室。</p>
+      <div class="auth-tabs" role="tablist">
+        <button class="active" type="button" data-auth-mode="guest">游客</button>
+        <button type="button" data-auth-mode="login">登录</button>
+        <button type="button" data-auth-mode="register">注册</button>
+      </div>
+      <label id="nameLabel" for="nameInput">你的昵称</label>
+      <input id="nameInput" name="name" maxlength="20" autocomplete="nickname" placeholder="例如：小林" autofocus>
+      <div id="passwordGroup" class="password-group" hidden>
+        <label for="passwordInput">密码</label>
+        <input id="passwordInput" name="password" type="password" minlength="8" maxlength="128" autocomplete="current-password" placeholder="至少 8 个字符">
+      </div>
+      <p id="loginError" class="form-error" role="alert"></p>
+      <button id="authSubmit" type="submit">游客进入 <span>→</span></button>
+      <small>SQLite 持久化 · 密码使用 PBKDF2-SHA256 哈希保存</small>
+    </form>
+  </div>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

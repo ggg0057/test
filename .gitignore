@@ -1,0 +1,7 @@
+chat_server.exe
+sqlite3.o
+data/chat.db*
+data/music/*
+!data/music/.gitkeep
+build/
+.DS_Store

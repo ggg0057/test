@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10231c">
+  <title>幻想乡聊天室 · 网页版</title>
+  <link rel="stylesheet" href="/web.css">
+</head>
+<body>
+  <div class="backdrop" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="/web"><b>幻</b><span><strong>幻想乡聊天室</strong><small>WEB CHANNEL</small></span></a>
+    <div class="header-actions"><span id="connectionState"><i></i> C++ 服务在线</span><a href="/">打开小程序界面</a></div>
+  </header>
+
+  <main class="page-shell">
+    <section class="welcome-panel">
+      <p class="eyebrow">SHARED CHAT CHANNEL</p>
+      <h1>无论从哪里进入，<br>都在同一个聊天室。</h1>
+      <p>网页版与小程序连接同一个 C++ 服务。这里发送的消息，会实时同步到小程序用户。</p>
+      <div class="feature-list">
+        <span><b>01</b> 双向实时通信</span>
+        <span><b>02</b> 在线成员同步</span>
+        <span><b>03</b> 词典机器人可用</span>
+      </div>
+      <div class="command-tip"><small>词典命令</small><code>@词典 network</code></div>
+    </section>
+
+    <section class="chat-card">
+      <header class="chat-header">
+        <div><p class="eyebrow">PUBLIC LOUNGE</p><h2>公共大厅</h2></div>
+        <button id="membersButton" type="button">在线 <b id="memberCount">0</b></button>
+      </header>
+      <div id="messageList" class="message-list" aria-live="polite"></div>
+      <form id="messageForm" class="message-form">
+        <textarea id="messageInput" rows="1" maxlength="500" placeholder="输入消息，Enter 发送" aria-label="消息内容"></textarea>
+        <button type="submit">发送 <span>↗</span></button>
+      </form>
+    </section>
+
+    <aside id="membersPanel" class="members-card">
+      <header><p class="eyebrow">ONLINE NOW</p><h2>在线成员</h2></header>
+      <div id="memberList" class="member-list"></div>
+    </aside>
+  </main>
+
+  <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <form id="loginForm" class="login-card">
+      <b class="login-rune">幻</b>
+      <p class="eyebrow">ENTER THE SHARED CHANNEL</p>
+      <h2 id="loginTitle">进入网页版聊天室</h2>
+      <p>起一个昵称。小程序用户会看到你加入公共大厅。</p>
+      <label for="nameInput">你的昵称</label>
+      <input id="nameInput" maxlength="20" autocomplete="nickname" placeholder="例如：网页访客" autofocus>
+      <p id="loginError" class="error" role="alert"></p>
+      <button type="submit">进入公共大厅 →</button>
+    </form>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/web.js" defer></script>
+</body>
+</html>
